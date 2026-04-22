@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASRAR DATABASE | VIP SIM TRACKER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --card-bg: #18181b;
+            --purple: #a855f7;
+            --purple-dark: #7e22ce;
+            --purple-glow: rgba(168, 85, 247, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #71717a;
+            --green: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            padding-bottom: 90px; /* Space for bottom nav */
+            overflow-x: hidden;
+        }
+
+        /* Header Area */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-shield {
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px var(--purple-glow);
+        }
+
+        .title-area h1 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .title-area h1 span {
+            color: var(--purple);
+        }
+
+        .title-area p {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .logout-btn {
+            color: #ef4444;
+            font-size: 1.2rem;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Premium Badge */
+        .premium-badge-container {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0 25px 0;
+        }
+
+        .premium-badge {
+            background: rgba(168, 85, 247, 0.05);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: var(--purple);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+
+        /* Hero Text */
+        .hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hero h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .hero h3 {
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Search Section */
+        .search-wrapper {
+            margin: 0 20px 30px 20px;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 6px;
+            align-items: center;
+            box-shadow: 0 0 30px var(--purple-glow);
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-icon {
+            color: var(--text-muted);
+            padding: 0 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            padding: 12px 0;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            background: var(--purple);
+            border: none;
+            width: 55px;
+            height: 48px;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .search-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Features Cards */
+        .features-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 0 20px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .feature-icon {
+            width: 35px;
+            height: 35px;
+            background: var(--green-glow);
+            color: var(--green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Results Area */
+        #resultsArea {
+            padding: 0 20px;
+            display: none;
+        }
+
+        .data-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            position: relative;
+        }
+
+        .data-row {
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 8px;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .data-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .map-box {
+            height: 180px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: rgba(9, 9, 11, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 25px 15px 25px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.65rem;
+            gap: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+
+        .nav-item.active {
+            color: var(--purple);
+        }
+
+        .nav-center {
+            background: var(--purple);
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            transform: translateY(-20px);
+            box-shadow: 0 5px 20px var(--purple-glow);
+            border: 5px solid var(--bg-dark);
+            cursor: pointer;
+        }
+        
+        .loading-text {
+            text-align: center;
+            color: var(--purple);
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header>
+        <div class="logo-area">
+            <div class="icon-shield"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="title-area">
+                <h1>ASRAR <span>DATABASE</span></h1>
+                <p>VIP SIM TRACKER PRO</p>
+            </div>
+        </div>
+        <div class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+    </header>
+
+    <div class="premium-badge-container">
+        <div class="premium-badge">PREMIUM ACCESS ENABLED</div>
+    </div>
+
+    <div class="hero">
+        <h2>Search Any Number</h2>
+        <h3>With Precision.</h3>
+    </div>
+
+    <div class="search-wrapper">
+        <div class="search-box">
+            <i class="fa-solid fa-phone search-icon"></i>
+            <input type="number" id="targetInput" placeholder="Enter phone number or CNIC">
+            <button class="search-btn" id="execBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+    </div>
+
+    <div class="features-container" id="featuresSection">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h4>Instant Results</h4>
+            <p>Get real-time data from our high-speed database nodes.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><i class="fa-solid fa-shield"></i></div>
+            <h4>Secure Access</h4>
+            <p>End-to-end encrypted lookups for maximum privacy.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            <h4>Map Integration</h4>
+            <p>Visualize addresses instantly with built-in map support.</p>
+        </div>
+    </div>
+
+    <div id="resultsArea"></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>History</span>
+        </div>
+        <div class="nav-item">
+            <i class="fa-regular fa-star"></i>
+            <span>Favs</span>
+        </div>
+        
+        <div class="nav-center" onclick="document.getElementById('execBtn').click()">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        
+        <div class="nav-item" style="color: #3b82f6;">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Bulk</span>
+        </div>
+        <a href="https://whatsapp.com/channel/0029VbCPHCVIiRp0scdIGA42" target="_blank" class="nav-item" style="color: var(--green);">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Support</span>
+        </a>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.getElementById('execBtn').addEventListener('click', async () => {
+        const val = document.getElementById('targetInput').value;
+        if(val.length < 5) {
+            alert("Please enter a valid number");
+            return;
+        }
+
+        // Hide features, show results area with loader
+        document.getElementById('featuresSection').style.display = 'none';
+        const resDiv = document.getElementById('resultsArea');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = '<p class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> FETCHING SECURE DATA...</p>';
+
+        try {
+            const response = await fetch(`https://howler-database-api.vercel.app/api/data?phone=${val}`);
+            const data = await response.json();
+            resDiv.innerHTML = '';
+            
+            if(data.success && data.records && data.records.length > 0) {
+                data.records.forEach((rec, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'data-card';
+                    card.innerHTML = `
+                        <div class="data-row">
+                            <span class="data-label">Full Name</span>
+                            <span class="data-value">${rec.Name || "N/A"}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Mobile Number</span>
+                            <span class="data-value">${rec.Mobile || "N/A"}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">CNIC</span>
+                            <span class="data-value">${rec.CNIC || "N/A"}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Address</span>
+                            <span class="data-value" style="font-size: 0.85rem;">${rec.Address || "N/A"}</span>
+                        </div>
+                        <div id="map-${i}" class="map-box"></div>
+                    `;
+                    resDiv.appendChild(card);
+                    
+                    // Initialize Map after card is added
+                    setTimeout(() => {
+                        let map = L.map(`map-${i}`, {zoomControl: false, attributionControl: false}).setView([30.3753, 69.3451], 5);
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map); // Dark mode map
+                    }, 400);
+                });
+            } else { 
+                resDiv.innerHTML = '<p class="loading-text" style="color:#ef4444;">NO RECORDS FOUND</p>'; 
+            }
+        } catch (e) { 
+            resDiv.innerHTML = '<p class="loading-text" style="color:#ef4444;">API CONNECTION ERROR</p>'; 
+        }
+    });
+</script>
+</body>
+</html>
+
